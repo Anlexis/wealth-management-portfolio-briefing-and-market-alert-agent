@@ -1,0 +1,36 @@
+# Runtime parameters — loaded by AgentRegistry, passed as Graph(config=...).
+# Separate from config/agent.yaml (the static manifest).
+#
+# Every value below is READ at runtime: src/graph/graph.py loads this file and
+# forwards it to the inner graph, which seeds it into State so the no-argument
+# domain nodes can read it. A value added here without a reader would be a dead
+# declaration in shipped configuration.
+
+max_retry: 3
+timeout_s: 30
+
+# ScreenEventsAndAlertsNode — default alert thresholds. A caller may override
+# each within the bounds documented in src/services/security.py.
+alert_thresholds:
+  drawdown_pct: -10.0
+  concentration_pct: 25.0
+
+# Structural caps applied by AggregateSourcesNode. A payload exceeding any of
+# them is refused rather than truncated, so the briefing never silently
+# describes a subset of the portfolio it was given.
+limits:
+  max_holdings: 200
+  max_benchmarks: 50
+  max_market_events: 100
+
+briefing:
+  # Aggregate monetary figures are rendered — and enforced at the output
+  # boundary — on this grid. Individual holding values are never rendered.
+  external_round_unit: 1000
+
+analysis:
+  system_prompt: >-
+    You are a wealth-management performance analyst. Write a concise, neutral,
+    factual performance-attribution narrative comparing the portfolio against
+    its benchmark from the structured figures provided. Do not invent figures.
+    Do not give personalized investment advice or buy/sell recommendations.
